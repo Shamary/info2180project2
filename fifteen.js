@@ -1,17 +1,16 @@
+
+
+/*The transition of the tiles was the extra feature added*/
+
+
 window.onload = function()
 {
-    //alert("Welcome");
-    
-    //var box= document.getElementById("overall");
     var sButton=document.getElementById("shufflebutton");
     
     var blocks= document.getElementById("puzzlearea").getElementsByTagName("div");
     
     var pos_x= 0;
     var pos_y=0;
-    
-    //var empt_tile.sx=300;
-    //var empty_tile.sy=300;
     
     var empty_tile={
       
@@ -20,7 +19,6 @@ window.onload = function()
     };
     
     setup_board(blocks,pos_x,pos_y,empty_tile,sButton);
-    
 }
 
 var getNeighbour = function(blocks,empty_tile) //gets all the neighbours of the empty tile
@@ -50,10 +48,54 @@ var swap=function(empty_tile,block)
     empty_tile.sx=parseInt(block.style.left);
     empty_tile.sy=parseInt(block.style.top);
     
-    block.style.left=temp_x+"px";
-    block.style.top=temp_y+"px";
     
+    
+    //block.style.left=temp_x+"px";
+    //block.style.top=temp_y+"px";
+    
+    var timer;
+    
+    if(parseInt(block.style.top)!=temp_y)
+    {
+        timer= setInterval(function(){moveTile(block,true,temp_x,temp_y,timer);},1); 
+    }
+    else if(parseInt(block.style.left)!=temp_x)
+    {
+        timer= setInterval(function(){moveTile(block,false,temp_x,temp_y,timer);},1); 
+    }
+   
     //return [x,y];
+}
+
+var moveTile=function(block,vertical,x,y,timer)
+{
+    if(vertical)
+    {
+        if(parseInt(block.style.top)<y)
+        {
+            block.style.top= (parseInt(block.style.top)+1) +"px" 
+        }
+        else if(parseInt(block.style.top)>y)
+        {
+            block.style.top= (parseInt(block.style.top)-1) +"px" 
+        }
+    }
+    else
+    {
+        if(parseInt(block.style.left)<x)
+        {
+            block.style.left= (parseInt(block.style.left)+1) +"px" 
+        }
+        else if(parseInt(block.style.left)>x)
+        {
+            block.style.left= (parseInt(block.style.left)-1) +"px" 
+        }
+    }
+    
+    if(parseInt(block.style.top)==y&&parseInt(block.style.left)==x)
+    {
+        clearInterval(timer);
+    }
 }
 
 
@@ -128,30 +170,12 @@ var setup_board= function(blocks,pos_x,pos_y,empty_tile,sButton)////Initial boar
                     && parseInt(this.style.top)==empty_tile.sy)
                 {
                     pos=swap(empty_tile,this);
-                    
-                    //empty_tile.sx=pos[0];
-                    //empty_tile.sy=pos[1];
                 }
                 else if(Math.abs(parseInt(this.style.top)-empty_tile.sy)==100 
                     && parseInt(this.style.left)==empty_tile.sx)
                 {
                     pos=swap(empty_tile,this);
-                    
-                    //empty_tile.sx=pos[0];
-                    //empty_tile.sy=pos[1];
                 }
-                /*
-                else if(parseInt(this.style.left)==sx && (parseInt(this.style.top)-sy==-100))
-                {
-                    sy=parseInt(this.style.top);
-                    this.style.top= (parseInt(this.style.top)+100)+"px";
-                }
-                else if(parseInt(this.style.left)==sx && (parseInt(this.style.top)-sy==100))
-                {
-                    sy=parseInt(this.style.top);
-                    this.style.top= (parseInt(this.style.top)-100)+"px";
-                }
-                */
             }
         };
         
@@ -161,12 +185,12 @@ var setup_board= function(blocks,pos_x,pos_y,empty_tile,sButton)////Initial boar
         };
     }
     
-    sButton.onmousedown=function()
+    sButton.onmousedown=function() //////shuffle button
         {
             var nlist=new Array();
             var r=0,temp_x=0,temp_y=0;
             
-            for(var p=0;p<200;p++)
+            for(var p=0;p<300;p++)
             {
                 nlist=getNeighbour(blocks,empty_tile);
                 
