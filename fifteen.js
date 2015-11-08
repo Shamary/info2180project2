@@ -3,57 +3,59 @@ window.onload = function()
     //alert("Welcome");
     
     //var box= document.getElementById("overall");
+    var sButton=document.getElementById("shufflebutton");
     
     var blocks= document.getElementById("puzzlearea").getElementsByTagName("div");
     
-    var pos_x= 100;
+    var pos_x= 0;
     var pos_y=0;
     
+    //var empt_tile.sx=300;
+    //var empty_tile.sy=300;
     
-    setup_board(blocks,pos_x,pos_y);
+    var empty_tile={
+      
+      sx:300,
+      sy:300
+    };
+    
+    setup_board(blocks,pos_x,pos_y,empty_tile,sButton);
     
 }
 
-var empty_pos= 15;
-
-var is_next_empty= function(blocks,block_pos)
+var getNeighbour = function(blocks,empty_tile) //gets all the neighbours of the empty tile
 {
-    //alert("over");
-    /*
-    if(block_pos<14&&parseInt(blocks[block_pos].style.right)-parseInt(blocks[block_pos+1].style.left)
-    >=98)
+    var n=new Array();//array of tiles
+    var pos=0;
+    
+    for(var i=0;i<blocks.length;i++)
     {
-        /////shift right
-        
+        if(parseInt(blocks[i].style.top)==empty_tile.sy
+            &&Math.abs(parseInt(blocks[i].style.left)-empty_tile.sx)==100 
+            ||(parseInt(blocks[i].style.left)==empty_tile.sx 
+            &&Math.abs(parseInt(blocks[i].style.top)-empty_tile.sy)==100))
+            {
+                n[pos]=blocks[i];
+                pos++;
+            }
     }
-    else if(block_pos>0&&parseInt(blocks[block_pos].style.left)-parseInt(blocks[block_pos-1].style.right)
-    >=98)
-    {
-        /////shift left
-        
-    }
-    else if(block_pos<12&&parseInt(blocks[block_pos].style.bottom)-parseInt(blocks[block_pos+4].style.top)
-    >=98)
-    {
-        /////shift down
-    }
-    else if(block_pos>3&&parseInt(blocks[block_pos].style.top)-parseInt(blocks[block_pos-4].style.bottom)
-    >=98)
-    {
-        //////shift up
-        
-    }
-    else if(block_pos==14&&empty_pos==15)
-    {
-        alert("called");
-        blocks[block_pos].addClassName("movablepiece");
-    }*/
+    
+    return n;
 }
 
-var set_hover=function(blocks,block_pos)
+var swap=function(empty_tile,block)
 {
-    is_next_empty(blocks,block_pos);
+    var temp_x=empty_tile.sx,temp_y=empty_tile.sy;
+    
+    empty_tile.sx=parseInt(block.style.left);
+    empty_tile.sy=parseInt(block.style.top);
+    
+    block.style.left=temp_x+"px";
+    block.style.top=temp_y+"px";
+    
+    //return [x,y];
 }
+
 
 var set_correct= function(blocks)
 {
@@ -69,39 +71,119 @@ var set_correct= function(blocks)
     ////////row 3
     blocks[8].style.backgroundPosition="0px -145PX";
     blocks[9].style.backgroundPosition="-102px -147PX";
-    blocks[10].style.backgroundPosition="-225px -147PX";
+    blocks[10].style.backgroundPosition="-227px -145PX";
     blocks[11].style.backgroundPosition="-321px -147PX";
     ///row 4
     blocks[12].style.backgroundPosition="0px -244PX";
-    blocks[13].style.backgroundPosition="-104px -244PX";
-    blocks[14].style.backgroundPosition="-194px -244PX";
+    blocks[13].style.backgroundPosition="-106px -244PX";
+    blocks[14].style.backgroundPosition="-227px -244PX";
 }
 
 
-var setup_board= function(blocks,pos_x,pos_y)////Initial board setup
+var setup_board= function(blocks,pos_x,pos_y,empty_tile,sButton)////Initial board setup
 {
     for(var i=0; i<blocks.length;i++)
     {
+       
         blocks[i].addClassName("puzzlepiece");
         
         blocks[i].style.backgroundRepeat="no-repeat";
         
-        if(i>0)
+        ///////////position the tiles////////////
+        blocks[i].style.left=(pos_x+"px");
+        blocks[i].style.top=(pos_y+"px");
+        pos_x+=100;
+        
+        
+        if(pos_x>=400)/////check if end of row
         {
-            blocks[i].style.left=(pos_x+"px");
-            blocks[i].style.top=(pos_y+"px");
-            pos_x+=100;
-            //pos= getComputedStyle(blocks[i]);
-        }
-       
-        if(pos_x>=400)
-        {
-            pos_x=0;
-            pos_y+=100;
+            pos_x=0;/////restart x pos
+            pos_y+=100;///////next row below
         }
         
-        blocks[i].mouseover = set_hover(blocks,i);
+    
+        ///////////////////click and hover events////////////
+        
+        blocks[i].onmouseover = function()
+        {
+            ////////check if tile is next to space. up down left or right
+            if(Math.abs(parseInt(this.style.left)-empty_tile.sx)==100 && 
+            parseInt(this.style.top)==empty_tile.sy || (parseInt(this.style.left)==empty_tile.sx 
+            && Math.abs(parseInt(this.style.top)-empty_tile.sy)==100))
+            {
+                //alert("added");
+                this.addClassName("movablepiece");
+            }
+        };
+        
+        blocks[i].onmousedown= function()
+        {
+            //alert(sx+""+sy);
+            
+            if(this.className=="puzzlepiece movablepiece")
+            {
+                var pos;
+                
+                if(Math.abs(parseInt(this.style.left)-empty_tile.sx)==100 
+                    && parseInt(this.style.top)==empty_tile.sy)
+                {
+                    pos=swap(empty_tile,this);
+                    
+                    //empty_tile.sx=pos[0];
+                    //empty_tile.sy=pos[1];
+                }
+                else if(Math.abs(parseInt(this.style.top)-empty_tile.sy)==100 
+                    && parseInt(this.style.left)==empty_tile.sx)
+                {
+                    pos=swap(empty_tile,this);
+                    
+                    //empty_tile.sx=pos[0];
+                    //empty_tile.sy=pos[1];
+                }
+                /*
+                else if(parseInt(this.style.left)==sx && (parseInt(this.style.top)-sy==-100))
+                {
+                    sy=parseInt(this.style.top);
+                    this.style.top= (parseInt(this.style.top)+100)+"px";
+                }
+                else if(parseInt(this.style.left)==sx && (parseInt(this.style.top)-sy==100))
+                {
+                    sy=parseInt(this.style.top);
+                    this.style.top= (parseInt(this.style.top)-100)+"px";
+                }
+                */
+            }
+        };
+        
+        blocks[i].onmouseout = function()
+        {
+            this.className="puzzlepiece";
+        };
     }
+    
+    sButton.onmousedown=function()
+        {
+            var nlist=new Array();
+            var r=0,temp_x=0,temp_y=0;
+            
+            for(var p=0;p<200;p++)
+            {
+                nlist=getNeighbour(blocks,empty_tile);
+                
+                r=Math.round(Math.random()*(nlist.length-1));//get random index from neighbour array
+                
+                //alert(r);
+                
+                temp_x=empty_tile.sx;
+                temp_y=empty_tile.sy;
+                
+                empty_tile.sx=parseInt(nlist[r].style.left);
+                empty_tile.sy=parseInt(nlist[r].style.top);
+                
+                nlist[r].style.left=temp_x+"px";
+                nlist[r].style.top=temp_y+"px";
+            }
+        };
     
     set_correct(blocks);
 }
